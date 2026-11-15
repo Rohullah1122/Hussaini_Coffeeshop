@@ -1,0 +1,20 @@
+{
+    "name": "Hussaini's Coffee Shop",
+    "tagline": "Fresh coffee, warm pastries, good company.",
+    "address": "123 Main Street, Airdrie, AB",
+    "phone": "(403) 555-0199",
+    "email": "hello@hussainiscoffee.ca",
+    "tax_rate": 0.05,
+    "delivery_fee": 3.99,
+    "tables": 8,
+    "max_table_guests": 8,
+    "hours": [
+        {"day": "Monday", "open": "07:00", "close": "18:00"},
+        {"day": "Tuesday", "open": "07:00", "close": "18:00"},
+        {"day": "Wednesday", "open": "07:00", "close": "18:00"},
+        {"day": "Thursday", "open": "07:00", "close": "20:00"},
+        {"day": "Friday", "open": "07:00", "close": "20:00"},
+        {"day": "Saturday", "open": "08:00", "close": "20:00"},
+        {"day": "Sunday", "open": "09:00", "close": "16:00"}
+    ]
+}

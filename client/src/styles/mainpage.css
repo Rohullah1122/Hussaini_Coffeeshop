@@ -1,0 +1,116 @@
+/* ---------- hero ---------- */
+.hero { background: radial-gradient(circle at 80% 30%, var(--foam), var(--cream) 60%); border-bottom: 1px solid var(--line); }
+.herogrid { display: flex; flex-wrap: wrap; align-items: center; gap: 40px; padding-top: 64px; padding-bottom: 100px; }
+.herotext { flex: 1 1 420px; animation: fadeup 0.8s ease both; }
+.herotext h1 { font-size: clamp(44px, 7vw, 76px); letter-spacing: -0.02em; }
+.herotext h1 em { color: var(--caramel); }
+.herotext p { font-size: 19px; color: var(--muted); max-width: 520px; margin-bottom: 28px; }
+.heroanim { flex: 1 1 340px; display: flex; justify-content: center; }
+
+@keyframes fadeup {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: none; }
+}
+
+
+/* ---------- animated coffee cup ---------- */
+.coffeecup { position: relative; width: 300px; height: 300px; animation: float 4s ease-in-out infinite; }
+
+.cup {
+    position: absolute;
+    left: 60px;
+    top: 110px;
+    width: 160px;
+    height: 120px;
+    background: var(--paper);
+    border: 6px solid var(--espresso);
+    border-radius: 0 0 70px 70px;
+    overflow: hidden;
+}
+.coffee { position: absolute; left: 0; right: 0; top: 10px; height: 26px; background: var(--mocha); border-radius: 50%; box-shadow: inset 0 -6px 0 var(--caramel); }
+
+.handle { position: absolute; left: 208px; top: 128px; width: 52px; height: 58px; border: 6px solid var(--espresso); border-left: 0; border-radius: 0 34px 34px 0; }
+.saucer { position: absolute; left: 30px; top: 232px; width: 220px; height: 22px; background: var(--latte); border: 6px solid var(--espresso); border-radius: 50%; }
+
+.steam { position: absolute; left: 92px; top: 20px; display: flex; gap: 22px; }
+.steam span { width: 10px; height: 70px; border-radius: 10px; background: linear-gradient(to top, rgba(107, 74, 54, 0.45), transparent); animation: steam 2.6s ease-in-out infinite; }
+.steam span:nth-child(2) { animation-delay: 0.6s; }
+.steam span:nth-child(3) { animation-delay: 1.2s; }
+
+.bean { position: absolute; width: 22px; height: 30px; background: var(--mocha); border-radius: 50%; animation: float 5s ease-in-out infinite; }
+.bean::after { content: ""; position: absolute; left: 9px; top: 4px; width: 3px; height: 22px; background: var(--latte); border-radius: 3px; transform: rotate(10deg); }
+.bean.b1 { left: 0; top: 80px; transform: rotate(-25deg); animation-delay: 0.4s; }
+.bean.b2 { right: 0; top: 40px; transform: rotate(30deg); animation-delay: 1.4s; }
+.bean.b3 { right: 20px; top: 250px; transform: rotate(-10deg); animation-delay: 2.2s; }
+
+@media (max-width: 600px) {
+    .herogrid { padding-top: 40px; gap: 0; }
+    .coffeecup { transform: scale(0.75); margin: -30px 0 -20px; }
+}
+
+@keyframes steam {
+    0% { opacity: 0; transform: translateY(20px) scaleY(0.6); }
+    40% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-30px) scaleY(1.1); }
+}
+
+@keyframes float {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -10px; }
+}
+
+
+/* ---------- today's special ---------- */
+.special {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 24px;
+    margin-top: -36px;
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    max-width: 1132px;
+}
+.special .foodicon { width: 120px; height: 120px; border-radius: 20px; }
+.specialtext { flex: 1 1 280px; }
+.specialtext h2 { margin-bottom: 4px; }
+.specialbuy { display: flex; align-items: center; gap: 16px; }
+.bigprice { font-family: var(--display); font-size: 30px; font-weight: 700; }
+
+
+/* ---------- sections ---------- */
+.sectionhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
+
+.categorygrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+.categorycard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 22px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    color: var(--espresso);
+    text-decoration: none;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+.categorycard:not(.static):hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+.categorycard .foodicon { width: 80px; height: 80px; border-radius: 16px; }
+.categorycard h3 { margin: 6px 0 0; }
+
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+.splitcard { padding: 32px; border-radius: 24px; background: var(--paper); border: 1px solid var(--line); }
+.splitcard.dark { background: var(--espresso); color: #F1E6DA; border: 0; }
+.splitcard.dark .eyebrow { color: #E6B07A; }
+.splitcard.dark h2 { color: #fff; }
+
+.hourslist { list-style: none; padding: 0; margin: 12px 0 0; }
+.hourslist li { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.hourslist li.today { font-weight: 700; color: var(--caramel-dark); }
+
+.contactgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+.contactgrid h3 { margin-top: 20px; }

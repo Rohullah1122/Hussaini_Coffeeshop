@@ -1,0 +1,6 @@
+[
+    {"id": 1, "name": "Coffee & Drinks", "short": "Drinks", "sort_order": 1},
+    {"id": 2, "name": "Light Bites", "short": "Starters", "sort_order": 2},
+    {"id": 3, "name": "Sandwiches & Bowls", "short": "Mains", "sort_order": 3},
+    {"id": 4, "name": "Pastries & Desserts", "short": "Desserts", "sort_order": 4}
+]

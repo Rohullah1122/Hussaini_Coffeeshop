@@ -1,0 +1,19 @@
+.bookform { max-width: 820px; }
+.bookform h2 { margin-bottom: 20px; }
+
+.slotgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.slot { padding: 10px 6px; border: 1px solid #D9C9B6; border-radius: 12px; background: #fff; color: var(--espresso); font-family: var(--body); font-weight: 700; font-size: 14px; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.slot:hover:not(:disabled) { border-color: var(--caramel); }
+.slot.active { background: var(--espresso); border-color: var(--espresso); color: #fff; }
+.slot:disabled { opacity: 0.45; cursor: not-allowed; text-decoration: line-through; }
+.slot small { font-size: 11px; text-decoration: none; }
+
+.eventgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.eventcard { text-align: left; padding: 22px; border: 2px solid var(--line); border-radius: var(--radius); background: var(--paper); font-family: var(--body); color: var(--espresso); cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+.eventcard:hover { transform: translateY(-4px); }
+.eventcard.active { border-color: var(--caramel); background: #FBEFE2; }
+.eventcard .muted { font-size: 14px; }
+.eventmeta { font-weight: 700; font-size: 14px; color: var(--caramel-dark); }
+
+.estimate { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-radius: 14px; background: var(--foam); margin-bottom: 16px; }
+.estimate strong { font-family: var(--display); font-size: 24px; }

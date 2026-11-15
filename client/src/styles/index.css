@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:opsz,wght@6..12,400;6..12,600;6..12,700&display=swap");
+
+/* ---------- colors and fonts used everywhere ---------- */
+:root {
+    --cream: #FBF6EF;
+    --paper: #FFFDF9;
+    --espresso: #2E211A;
+    --mocha: #6B4A36;
+    --caramel: #B86E2F;
+    --caramel-dark: #8F5220;
+    --latte: #E9D8C4;
+    --foam: #F4EADF;
+    --line: #EADFD1;
+    --muted: #6E5E52;
+    --sage: #4F6F51;
+    --danger: #A8352A;
+
+    --display: "Fraunces", Georgia, serif;
+    --body: "Nunito Sans", system-ui, sans-serif;
+
+    --radius: 18px;
+    --shadow: 0 10px 30px rgba(46, 33, 26, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    margin: 0;
+    background: var(--cream);
+    color: var(--espresso);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0 0 12px; }
+h1 { font-size: clamp(34px, 5vw, 52px); }
+h2 { font-size: clamp(24px, 3vw, 32px); }
+h3 { font-size: 19px; }
+p { margin: 0 0 12px; }
+a { color: var(--caramel-dark); }
+img { max-width: 100%; }
+
+:focus-visible { outline: 3px solid var(--caramel); outline-offset: 2px; }
+
+
+/* ---------- layout ---------- */
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.page { flex: 1; }
+.container { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.section { padding-top: 56px; padding-bottom: 56px; }
+.narrow { max-width: 760px; }
+.pagehead { margin-bottom: 28px; }
+
+.eyebrow {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--caramel-dark);
+    margin-bottom: 8px;
+}
+
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.lead { font-size: 20px; }
+
+
+/* ---------- buttons ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 13px 24px;
+    border: 2px solid var(--espresso);
+    border-radius: 999px;
+    background: var(--espresso);
+    color: #fff;
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s, color 0.2s;
+}
+.btn:hover { background: var(--mocha); border-color: var(--mocha); transform: translateY(-2px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn.outline { background: transparent; color: var(--espresso); }
+.btn.outline:hover { background: var(--espresso); color: #fff; }
+.btn.light { background: var(--cream); color: var(--espresso); border-color: var(--cream); }
+.btn.light:hover { background: #fff; }
+.btn.small { padding: 8px 16px; font-size: 14px; }
+.btn.full { width: 100%; }
+.btn.added { background: var(--sage); border-color: var(--sage); }
+
+.buttons { display: flex; flex-wrap: wrap; gap: 12px; }
+.buttons.center { justify-content: center; }
+
+.linkbtn {
+    background: none;
+    border: none;
+    padding: 4px 0;
+    color: var(--caramel-dark);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+}
+.linkbtn:hover { text-decoration: underline; }
+.linkbtn.danger { color: var(--danger); }
+
+
+/* ---------- cards and forms ---------- */
+.card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+.field input, .field select, .field textarea, .editbooking input, .editbooking select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #D9C9B6;
+    border-radius: 12px;
+    background: #fff;
+    color: var(--espresso);
+    font-family: var(--body);
+    font-size: 15px;
+    font-weight: 400;
+}
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--caramel); box-shadow: 0 0 0 3px rgba(184, 110, 47, 0.18); }
+.field textarea { resize: vertical; }
+fieldset.field { border: 0; padding: 0; margin: 0 0 16px; }
+fieldset.field legend { padding: 0; margin-bottom: 6px; }
+
+.formgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0 16px; }
+
+.error { color: var(--danger); font-size: 13px; font-weight: 600; }
+.success { background: #E3EEDF; color: #2F5130; padding: 10px 14px; border-radius: 12px; font-weight: 600; }
+
+.empty { text-align: center; padding: 60px 24px; }
+.empty .btn { margin-top: 8px; }
+
+
+/* ---------- tags and status labels ---------- */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tag { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: #E3EEDF; color: #2F5130; }
+
+.status { display: inline-block; vertical-align: middle; font-family: var(--body); font-size: 12px; font-weight: 700; text-transform: capitalize; padding: 3px 10px; border-radius: 999px; margin-left: 8px; background: var(--foam); color: var(--mocha); }
+.status.pending { background: #FBEBC9; color: #7A5200; }
+.status.preparing { background: #E7E1F7; color: #4B3A86; }
+.status.ready, .status.ontheway { background: #DCEBF7; color: #23527A; }
+.status.delivered, .status.confirmed, .status.completed { background: #E3EEDF; color: #2F5130; }
+.status.cancelled { background: #F6DEDA; color: var(--danger); }
+
+
+/* ---------- footer ---------- */
+.footer { background: var(--espresso); color: #E9DDD0; margin-top: 40px; }
+.footergrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 28px; padding-top: 48px; padding-bottom: 32px; }
+.footer h3 { color: #fff; }
+.footer h4 { margin: 0 0 10px; color: #fff; font-size: 15px; }
+.footer p { margin: 0 0 6px; font-size: 14px; }
+.footer a { display: block; color: #E9DDD0; text-decoration: none; font-size: 14px; margin-bottom: 6px; }
+.footer a:hover { color: #fff; text-decoration: underline; }
+.copyright { text-align: center; font-size: 13px; color: #B9A797; padding: 16px; margin: 0; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+}

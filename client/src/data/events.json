@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Birthday Brunch",
+        "description": "Celebrate with brunch, coffee and cake in our back room. We decorate, you enjoy.",
+        "price_per_person": 22,
+        "min_guests": 8,
+        "max_guests": 30,
+        "menus": ["Classic brunch", "Pastries & coffee", "Brunch + cake"]
+    },
+    {
+        "id": 2,
+        "name": "Team Meeting",
+        "description": "A quiet space with Wi-Fi, a screen, unlimited coffee and lunch for your team.",
+        "price_per_person": 15,
+        "min_guests": 4,
+        "max_guests": 20,
+        "menus": ["Coffee & pastries", "Sandwich lunch", "Coffee + lunch"]
+    },
+    {
+        "id": 3,
+        "name": "Latte Art Workshop",
+        "description": "Learn to steam milk and pour hearts and tulips with our baristas. Two hours, all drinks included.",
+        "price_per_person": 35,
+        "min_guests": 4,
+        "max_guests": 12,
+        "menus": ["Workshop drinks", "Workshop + pastries"]
+    }
+]

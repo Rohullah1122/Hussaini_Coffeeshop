@@ -1,0 +1,12 @@
+[
+    {"keywords": ["special", "today"], "answer": "Today's special is the Maple Pecan Latte for $6.49."},
+    {"keywords": ["vegetarian", "veggie", "meatless"], "answer": "We offer the Avocado Toast, Caprese Panini, and Garden Quinoa Bowl."},
+    {"keywords": ["recommend", "suggest", "should i get", "popular"], "answer": "RECOMMEND"},
+    {"keywords": ["gluten"], "answer": "Yes. We offer Gluten-Free Banana Bread and our Garden Quinoa Bowl."},
+    {"keywords": ["dessert", "sweet", "pastry"], "answer": "Our Chocolate Croissant is our most popular dessert."},
+    {"keywords": ["last time", "last order", "ordered before", "previous order"], "answer": "LAST_ORDER"},
+    {"keywords": ["vegan", "dairy", "oat milk"], "answer": "Every drink can be made with oat milk. Vegan picks: Caramel Oat Latte, Avocado Toast and the Garden Quinoa Bowl."},
+    {"keywords": ["hour", "open", "close"], "answer": "HOURS"},
+    {"keywords": ["where", "address", "location"], "answer": "We're at 123 Main Street, Airdrie, AB."},
+    {"keywords": ["hello", "hi", "hey"], "answer": "Hi! I'm the Hussaini's coffee assistant. Ask me about specials, vegetarian or gluten-free options, or your last order."}
+]
