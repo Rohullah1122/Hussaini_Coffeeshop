@@ -1,0 +1,58 @@
+[
+    {
+        "id": 1,
+        "name": "Sarah B.",
+        "rating": 5,
+        "comment": "Best caramel oat latte in town. Friendly staff and a cozy place to study.",
+        "days_ago": 1
+    },
+    {
+        "id": 2,
+        "name": "Ali K.",
+        "rating": 4,
+        "comment": "Great croissants and fast pickup. A bit busy on Saturday morning.",
+        "days_ago": 2
+    },
+    {
+        "id": 3,
+        "name": "Maya C.",
+        "rating": 5,
+        "comment": "We had our team meeting here, the lunch was delicious and the service was amazing.",
+        "days_ago": 3
+    },
+    {
+        "id": 4,
+        "name": "Jordan L.",
+        "rating": 2,
+        "comment": "My delivery was late and the coffee was cold.",
+        "days_ago": 4
+    },
+    {
+        "id": 5,
+        "name": "Priya S.",
+        "rating": 5,
+        "comment": "Love the gluten-free banana bread! Finally a cafe that cares.",
+        "days_ago": 5
+    },
+    {
+        "id": 6,
+        "name": "Tom R.",
+        "rating": 3,
+        "comment": "Coffee was good but the wait was long and the music was loud.",
+        "days_ago": 6
+    },
+    {
+        "id": 7,
+        "name": "Emma W.",
+        "rating": 4,
+        "comment": "Nice avocado toast, friendly barista. Would come back.",
+        "days_ago": 8
+    },
+    {
+        "id": 8,
+        "name": "Chris P.",
+        "rating": 1,
+        "comment": "Rude cashier and my order was wrong. Disappointed.",
+        "days_ago": 10
+    }
+]

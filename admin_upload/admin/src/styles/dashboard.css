@@ -1,0 +1,43 @@
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.statcard { display: flex; flex-direction: column; gap: 4px; padding: 20px; border-radius: 16px; }
+.statcard.latte { background: #F1E3D1; }
+.statcard.sage { background: #E1ECDD; }
+.statcard.caramel { background: #F7E2C8; }
+.statcard.rose { background: #F5E0DB; }
+.statlabel { font-size: 13px; font-weight: 700; color: var(--mocha); }
+.statvalue { font-family: var(--display); font-size: 32px; }
+.statnote { font-size: 13px; color: var(--muted); }
+
+.dashgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
+.panel.wide { grid-column: 1 / -1; }
+.dashgrid h2 { margin-bottom: 14px; }
+
+.barchart { display: flex; align-items: flex-end; gap: 10px; height: 200px; padding-top: 20px; }
+.barcol { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; }
+.bar { width: 100%; max-width: 44px; min-height: 4px; background: linear-gradient(to top, var(--mocha), var(--caramel)); border-radius: 8px 8px 4px 4px; animation: grow 0.8s ease both; transform-origin: bottom; }
+.barvalue { font-size: 13px; font-weight: 700; }
+.barlabel { font-size: 12px; color: var(--muted); }
+
+@keyframes grow {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+}
+
+.popular { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.popularrow { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+.track { height: 8px; background: var(--foam); border-radius: 8px; overflow: hidden; }
+.track div { height: 100%; background: var(--caramel); border-radius: 8px; }
+.warn { margin-top: 14px; padding: 10px 12px; border-radius: 10px; background: #FBEBC9; font-size: 13px; }
+
+.upcoming { list-style: none; padding: 0; margin: 0; }
+.upcoming li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.upcoming li div { display: flex; flex-direction: column; }
+.upcoming .muted { font-size: 13px; }
+
+.feelings { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 10px; }
+.feeling { display: flex; flex-direction: column; align-items: center; padding: 14px 8px; border-radius: 12px; }
+.feeling strong { font-family: var(--display); font-size: 26px; }
+.feeling span { font-size: 13px; font-weight: 700; }
+.feeling.positive { background: #E3EEDF; color: #2F5130; }
+.feeling.mixed { background: var(--foam); color: var(--mocha); }
+.feeling.negative { background: #F6DEDA; color: var(--danger); }

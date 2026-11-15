@@ -1,0 +1,47 @@
+[
+    {
+        "id": 2,
+        "full_name": "Demo Customer",
+        "email": "demo@hussainis.com",
+        "password": "demo123",
+        "phone": "403-555-0100",
+        "role": "customer",
+        "preferences": {
+            "favorite": "Caramel Oat Latte",
+            "milk": "Oat milk"
+        },
+        "joined": "2026-09-02"
+    },
+    {
+        "id": 3,
+        "full_name": "Sarah Brooks",
+        "email": "sarah@example.com",
+        "phone": "403-555-0102",
+        "role": "customer",
+        "joined": "2026-09-15"
+    },
+    {
+        "id": 4,
+        "full_name": "Ali Karimi",
+        "email": "ali@example.com",
+        "phone": "403-555-0103",
+        "role": "customer",
+        "joined": "2026-10-01"
+    },
+    {
+        "id": 5,
+        "full_name": "Maya Chen",
+        "email": "maya@example.com",
+        "phone": "403-555-0104",
+        "role": "customer",
+        "joined": "2026-10-12"
+    },
+    {
+        "id": 6,
+        "full_name": "Jordan Lee",
+        "email": "jordan@example.com",
+        "phone": "403-555-0105",
+        "role": "customer",
+        "joined": "2026-11-03"
+    }
+]
