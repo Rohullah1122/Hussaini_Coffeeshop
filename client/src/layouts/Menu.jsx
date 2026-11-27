@@ -6,6 +6,9 @@ import Filters from "../components/Filters.jsx";
 import "../styles/menu.css";
 
 
+
+
+
 const Menu = ({ALmenu,addtocart,ALcart}) => {
     const [params] = useSearchParams();
     const maxprice = Math.max(...ALmenu.map((m) => m.price));
@@ -36,6 +39,9 @@ const Menu = ({ALmenu,addtocart,ALcart}) => {
     const incartof = (id) => ALcart.find((c) => c.id === id)?.quantity || 0;
 
     const reset = () => setfilters({search: "",category: 0,diets: [],maxprice: Math.ceil(maxprice),sort: "popular"});
+
+
+    
 
 
     return (
