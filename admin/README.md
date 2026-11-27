@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-# Admin website (admin)
-
-Made by **[Friend's name]**. Open it at http://localhost:5173/admin (the client must be running too). Login: `admin@hussainis.com` / `admin123`.
-=======
 # Hussaini's Coffee Shop · Admin website
 
 **Smart Restaurant Management System, Assignment 1 (React frontend).**
@@ -39,7 +34,6 @@ Assignment 1 has no database. The data starts in JSON files and every change is 
 - Sold-out items and today's special change on the website right away.
 
 `watchdata` in `src/js/storage.js` listens for changes made in the other website's tab.
->>>>>>> 69724f1a0f147acc31d7bc15e65c73293bbd22b8
 
 ## Pages (`src/layouts`)
 
@@ -59,30 +53,19 @@ Layout (sidebar + page), Sidebar, **ProtectedRoute** (sends you to login if you 
 
 ## Where the code is
 
-<<<<<<< HEAD
-| Folder | What's in it |
-=======
 | File / folder | What's in it |
->>>>>>> 69724f1a0f147acc31d7bc15e65c73293bbd22b8
 |---|---|
 | `src/App.jsx` | All routes, the state, and the functions that change data |
 | `src/data` | JSON files: admins, menu, orders, reservations, users, reviews |
 | `src/js/storage.js` | Saves data in localStorage, shared with the customer website |
 | `src/js/helpers.js` | Money format, dates, sample data dates |
 | `src/js/sentiment.js` | Scores each review from its words and star rating |
-<<<<<<< HEAD
-| `vite.config.js` | `base: "/admin/"` so the admin opens at `/admin` |
-=======
 | `vite.config.js` | Port 5174 and `base: "/admin/"` |
->>>>>>> 69724f1a0f147acc31d7bc15e65c73293bbd22b8
 
 ## React concepts used
 
 Components and props, `useState`, `useEffect`, forms with validation, conditional rendering, list rendering with keys, React Router (protected routes, nested routes with `Outlet`, `basename="/admin"`).
-<<<<<<< HEAD
-=======
 
 ## Tech used
 
 React 19, React Router 7, Vite, plain CSS, localStorage. In Assignment 2 an Express server and a database will replace the JSON files and localStorage.
->>>>>>> 69724f1a0f147acc31d7bc15e65c73293bbd22b8
