@@ -11,14 +11,15 @@ const STATUSES = ["pending","confirmed","completed","cancelled"];
 
 // how many tables are still free at this date and time (ignoreid = the booking being edited)
 const tablesleft = async (date,time,ignoreid = 0) => {
-    const cafe = (await pool.query("SELECT tables FROM cafe_settings WHERE id = 1")).rows[0];
-    const taken = await pool.query(
-        `SELECT COUNT(*)::int AS n FROM reservations
+    // `tables` is a reserved word in MySQL, so it needs backticks
+    const cafe = (await pool.query("SELECT `tables` FROM cafe_settings WHERE id = 1"))[0][0];
+    const [taken] = await pool.query(
+        `SELECT COUNT(*) AS n FROM reservations
          WHERE booking_type = 'table' AND status <> 'cancelled'
-           AND reservation_date = $1 AND reservation_time = $2 AND id <> $3`,
+           AND reservation_date = ? AND reservation_time = ? AND id <> ?`,
         [date,time,ignoreid]
     );
-    return cafe.tables - taken.rows[0].n;
+    return cafe.tables - taken[0].n;
 };
 
 
@@ -34,21 +35,23 @@ const checkbooking = async (b,ignoreid = 0) => {
     if (!iswhole(b.guests)) errors.guests = "Enter the number of guests.";
     if (Object.keys(errors).length) return {status: 400,error: Object.values(errors)[0],errors};
 
-    // no bookings in the past, and only while the cafe is open
+    // no bookings in the past, and only while the cafe is open.
+    // MySQL has no $1 that can be reused, so each ? gets its own value (date and time are sent more than once).
+    // DAYOFWEEK gives 1 = Sunday, so -1 makes it 0 = Sunday like the opening_hours table
     const day = (await pool.query(
-        `SELECT ($1::date + $2::time) <= LOCALTIMESTAMP AS past,
-                ($1::date - CURRENT_DATE) AS daysaway,
-                h.open_time,h.close_time,($2::time >= h.open_time AND $2::time < h.close_time) AS isopen
-         FROM opening_hours h WHERE h.day_of_week = EXTRACT(DOW FROM $1::date)`,
-        [b.reservation_date,b.reservation_time]
-    )).rows[0];
+        `SELECT TIMESTAMP(?,?) <= NOW() AS past,
+                DATEDIFF(?,CURDATE()) AS daysaway,
+                h.open_time,h.close_time,(CAST(? AS TIME) >= h.open_time AND CAST(? AS TIME) < h.close_time) AS isopen
+         FROM opening_hours h WHERE h.day_of_week = DAYOFWEEK(?) - 1`,
+        [b.reservation_date,b.reservation_time,b.reservation_date,b.reservation_time,b.reservation_time,b.reservation_date]
+    ))[0][0];
 
     if (day.past) return {status: 400,error: "That date and time has already passed."};
     if (!day.open_time) return {status: 400,error: "We're closed that day."};
     if (!day.isopen) return {status: 400,error: `We're open ${day.open_time.slice(0,5)} to ${day.close_time.slice(0,5)} that day.`};
 
     if (b.booking_type === "table") {
-        const cafe = (await pool.query("SELECT max_table_guests FROM cafe_settings WHERE id = 1")).rows[0];
+        const cafe = (await pool.query("SELECT max_table_guests FROM cafe_settings WHERE id = 1"))[0][0];
         if (Number(b.guests) > cafe.max_table_guests) return {status: 400,error: `A table seats up to ${cafe.max_table_guests} guests. Book an event for bigger groups.`};
 
         // no double booking: only so many tables per time slot
@@ -59,7 +62,7 @@ const checkbooking = async (b,ignoreid = 0) => {
     }
 
     // event booking
-    const ev = (await pool.query("SELECT * FROM events WHERE id = $1",[b.event_id])).rows[0];
+    const ev = (await pool.query("SELECT * FROM events WHERE id = ?",[b.event_id]))[0][0];
     if (!ev) return {status: 400,error: "Choose an event."};
     if (Number(b.guests) < ev.min_guests || Number(b.guests) > ev.max_guests) {
         return {status: 400,error: `${ev.name} is for ${ev.min_guests} to ${ev.max_guests} guests.`};
@@ -68,12 +71,12 @@ const checkbooking = async (b,ignoreid = 0) => {
     if (day.daysaway < 3) return {status: 400,error: "Events need at least 3 days' notice."};
 
     // the event room: one event per day
-    const sameday = await pool.query(
+    const [sameday] = await pool.query(
         `SELECT 1 FROM reservations WHERE booking_type = 'event' AND status <> 'cancelled'
-           AND reservation_date = $1 AND id <> $2 LIMIT 1`,
+           AND reservation_date = ? AND id <> ? LIMIT 1`,
         [b.reservation_date,ignoreid]
     );
-    if (sameday.rows.length) return {status: 409,error: "The event room is already booked that day. Please pick another date."};
+    if (sameday.length) return {status: 409,error: "The event room is already booked that day. Please pick another date."};
 
     return {event_id: ev.id,menu: b.menu,estimated_total: ev.price_per_person * Number(b.guests)};
 };
@@ -82,8 +85,8 @@ const checkbooking = async (b,ignoreid = 0) => {
 const cansee = (user,booking) => (user && user.role === "admin") || (user ? booking.user_id === user.id : booking.user_id === null);
 
 const getbooking = async (id) => (await pool.query(
-    `SELECT r.*,e.name AS event_type FROM reservations r LEFT JOIN events e ON e.id = r.event_id WHERE r.id = $1`,[id]
-)).rows[0];
+    `SELECT r.*,e.name AS event_type FROM reservations r LEFT JOIN events e ON e.id = r.event_id WHERE r.id = ?`,[id]
+))[0][0];
 
 
 // reservations: how many tables are free at a date and time (everyone, for the booking form)
@@ -100,28 +103,28 @@ router.post("/",maybelogin,async (req,res) => {
     const checked = await checkbooking(b);
     if (checked.error) return res.status(checked.status).json({error: checked.error,errors: checked.errors});
 
-    const result = await pool.query(
+    const [result] = await pool.query(
         `INSERT INTO reservations (user_id,booking_type,event_id,menu,estimated_total,full_name,email,phone,
             reservation_date,reservation_time,guests,notes)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id`,
+         VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
         [req.user ? req.user.id : null,b.booking_type,checked.event_id,checked.menu,checked.estimated_total,
          b.full_name.trim(),b.email.trim().toLowerCase(),b.phone.trim(),b.reservation_date,b.reservation_time,
          Number(b.guests),b.notes || ""]
     );
-    res.status(201).json(await getbooking(result.rows[0].id));
+    res.status(201).json(await getbooking(result.insertId)); // insertId = the id MySQL just made
 });
 
 
 // reservations: list (admin sees all, a customer sees only their own)
 router.get("/",needlogin,async (req,res) => {
     const isadmin = req.user.role === "admin";
-    const result = await pool.query(
+    const [rows] = await pool.query(
         `SELECT r.*,e.name AS event_type FROM reservations r LEFT JOIN events e ON e.id = r.event_id
-         ${isadmin ? "" : "WHERE r.user_id = $1"}
+         ${isadmin ? "" : "WHERE r.user_id = ?"}
          ORDER BY r.reservation_date,r.reservation_time`,
         isadmin ? [] : [req.user.id]
     );
-    res.json(result.rows);
+    res.json(rows);
 });
 
 
@@ -150,9 +153,9 @@ router.put("/:id",needlogin,async (req,res) => {
     const status = req.user.role === "admin" ? booking.status : "pending";
 
     await pool.query(
-        `UPDATE reservations SET event_id = $1,menu = $2,estimated_total = $3,full_name = $4,email = $5,phone = $6,
-            reservation_date = $7,reservation_time = $8,guests = $9,notes = $10,status = $11
-         WHERE id = $12`,
+        `UPDATE reservations SET event_id = ?,menu = ?,estimated_total = ?,full_name = ?,email = ?,phone = ?,
+            reservation_date = ?,reservation_time = ?,guests = ?,notes = ?,status = ?
+         WHERE id = ?`,
         [checked.event_id,checked.menu,checked.estimated_total,b.full_name.trim(),b.email.trim().toLowerCase(),b.phone.trim(),
          b.reservation_date,b.reservation_time,Number(b.guests),b.notes || "",status,booking.id]
     );
@@ -166,7 +169,7 @@ router.patch("/:id/cancel",needlogin,async (req,res) => {
     if (!booking || (booking.user_id !== req.user.id && req.user.role !== "admin")) return res.status(404).json({error: "Booking not found."});
     if (booking.status === "completed") return res.status(409).json({error: "This booking is already completed."});
 
-    await pool.query("UPDATE reservations SET status = 'cancelled' WHERE id = $1",[booking.id]);
+    await pool.query("UPDATE reservations SET status = 'cancelled' WHERE id = ?",[booking.id]);
     res.json(await getbooking(booking.id));
 });
 
@@ -176,8 +179,8 @@ router.patch("/:id/status",needadmin,async (req,res) => {
     const {status} = req.body;
     if (!STATUSES.includes(status)) return res.status(400).json({error: "Unknown status."});
 
-    const result = await pool.query("UPDATE reservations SET status = $1 WHERE id = $2 RETURNING id",[status,req.params.id]);
-    if (!result.rows.length) return res.status(404).json({error: "Booking not found."});
+    if (!await getbooking(req.params.id)) return res.status(404).json({error: "Booking not found."});
+    await pool.query("UPDATE reservations SET status = ? WHERE id = ?",[status,req.params.id]);
     res.json(await getbooking(req.params.id));
 });
 

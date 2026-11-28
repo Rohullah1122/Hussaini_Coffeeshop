@@ -22,13 +22,17 @@ router.post("/register",async (req,res) => {
     if (sendproblems(res,errors)) return;
 
     const hash = await bcrypt.hash(password,10);
-    const result = await pool.query(
+
+    // JSON columns get JSON text: JSON.stringify turns the object into '{"favorite":"",...}'
+    const [result] = await pool.query(
         `INSERT INTO users (full_name,email,password_hash,phone,role,preferences)
-         VALUES ($1,$2,$3,$4,'customer',$5) RETURNING ${USERFIELDS}`,
-        [full_name.trim(),email.trim().toLowerCase(),hash,phone || null,{favorite: "",milk: "Regular milk"}]
+         VALUES (?,?,?,?,'customer',?)`,
+        [full_name.trim(),email.trim().toLowerCase(),hash,phone || null,JSON.stringify({favorite: "",milk: "Regular milk"})]
     );
 
-    const user = result.rows[0];
+    // MySQL has no RETURNING, so read the new user back with the id MySQL just made
+    const [rows] = await pool.query(`SELECT ${USERFIELDS} FROM users WHERE id = ?`,[result.insertId]);
+    const user = rows[0];
     res.status(201).json({token: maketoken(user),user});
 });
 
@@ -38,8 +42,8 @@ router.post("/login",async (req,res) => {
     const {email,password} = req.body;
     if (!email || !password) return res.status(400).json({error: "Enter your email and password."});
 
-    const result = await pool.query("SELECT * FROM users WHERE email = $1",[email.trim().toLowerCase()]);
-    const found = result.rows[0];
+    const [rows] = await pool.query("SELECT * FROM users WHERE email = ?",[email.trim().toLowerCase()]);
+    const found = rows[0];
 
     if (!found || !await bcrypt.compare(password,found.password_hash)) {
         return res.status(401).json({error: "Wrong email or password."});
@@ -52,9 +56,9 @@ router.post("/login",async (req,res) => {
 
 // me: who is logged in (the React app calls this when it opens to restore the session)
 router.get("/me",needlogin,async (req,res) => {
-    const result = await pool.query(`SELECT ${USERFIELDS} FROM users WHERE id = $1`,[req.user.id]);
-    if (!result.rows.length) return res.status(404).json({error: "Account not found."});
-    res.json(result.rows[0]);
+    const [rows] = await pool.query(`SELECT ${USERFIELDS} FROM users WHERE id = ?`,[req.user.id]);
+    if (!rows.length) return res.status(404).json({error: "Account not found."});
+    res.json(rows[0]);
 });
 
 
