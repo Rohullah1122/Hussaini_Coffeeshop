@@ -46,20 +46,29 @@ app.use((req,res) => {
 
 // error handler: Express sends every error here. database errors get a clear message
 // instead of crashing the server or showing SQL to the user
+// (the keys are the UNIQUE names from the database file)
 const DBMESSAGES = {
-    users_email_key: "An account with this email already exists.",
+    email: "An account with this email already exists.",
     one_event_per_day: "The event room is already booked that day.",
     one_booking_per_slot: "You already have a booking at that time.",
     one_special: "Only one item can be today's special."
 };
 
+// MySQL errors that mean "the data sent was wrong", not "the server broke"
+const BADVALUES = ["ER_CHECK_CONSTRAINT_VIOLATED","ER_TRUNCATED_WRONG_VALUE","ER_TRUNCATED_WRONG_VALUE_FOR_FIELD",
+    "ER_WRONG_VALUE","ER_BAD_NULL_ERROR","ER_INVALID_JSON_TEXT","ER_DATA_TOO_LONG","ER_WARN_DATA_OUT_OF_RANGE"];
+
 app.use((err,req,res,next) => {
     if (err.type === "entity.parse.failed") return res.status(400).json({error: "The request body isn't valid JSON."});
-    if (err.code === "23505") return res.status(409).json({error: DBMESSAGES[err.constraint] || "That already exists."});
-    if (err.code === "23503") return res.status(400).json({error: "That refers to something that doesn't exist."});
-    if (err.code === "23514" || err.code === "22P02" || err.code === "22007" || err.code === "22008") {
-        return res.status(400).json({error: "Some of the values aren't valid."});
+
+    // duplicate: MySQL says "Duplicate entry 'x' for key 'users.email'", so read the key name from the end
+    if (err.code === "ER_DUP_ENTRY") {
+        const key = (err.message.match(/for key '(?:\w+\.)?(\w+)'/) || [])[1];
+        return res.status(409).json({error: DBMESSAGES[key] || "That already exists."});
     }
+    if (err.code === "ER_NO_REFERENCED_ROW_2") return res.status(400).json({error: "That refers to something that doesn't exist."});
+    if (err.code === "ER_ROW_IS_REFERENCED_2") return res.status(409).json({error: "Other records still use this, so it can't be deleted."});
+    if (BADVALUES.includes(err.code)) return res.status(400).json({error: "Some of the values aren't valid."});
 
     console.error(err);
     res.status(500).json({error: "Something went wrong on the server."});

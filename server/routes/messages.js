@@ -6,6 +6,9 @@ import {filled,isemail,sendproblems} from "../middleware/check.js";
 
 const router = Router();
 
+// one message by id, or undefined
+const getmessage = async (id) => (await pool.query("SELECT * FROM contact_messages WHERE id = ?",[id]))[0][0];
+
 
 // messages: send a message from the Contact page (everyone)
 router.post("/",async (req,res) => {
@@ -17,29 +20,26 @@ router.post("/",async (req,res) => {
     if (!filled(message,5)) errors.message = "Please write a short message.";
     if (sendproblems(res,errors)) return;
 
-    const result = await pool.query(
-        "INSERT INTO contact_messages (name,email,message) VALUES ($1,$2,$3) RETURNING *",
+    const [result] = await pool.query(
+        "INSERT INTO contact_messages (name,email,message) VALUES (?,?,?)",
         [name.trim(),email.trim(),message.trim()]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(await getmessage(result.insertId));
 });
 
 
 // messages: read all messages (admin)
 router.get("/",needadmin,async (req,res) => {
-    const result = await pool.query("SELECT * FROM contact_messages ORDER BY created_at DESC");
-    res.json(result.rows);
+    const [rows] = await pool.query("SELECT * FROM contact_messages ORDER BY created_at DESC");
+    res.json(rows);
 });
 
 
 // messages: mark as read / unread (admin)
 router.patch("/:id",needadmin,async (req,res) => {
-    const result = await pool.query(
-        "UPDATE contact_messages SET is_read = $1 WHERE id = $2 RETURNING *",
-        [!!req.body.is_read,req.params.id]
-    );
-    if (!result.rows.length) return res.status(404).json({error: "Message not found."});
-    res.json(result.rows[0]);
+    if (!await getmessage(req.params.id)) return res.status(404).json({error: "Message not found."});
+    await pool.query("UPDATE contact_messages SET is_read = ? WHERE id = ?",[!!req.body.is_read,req.params.id]);
+    res.json(await getmessage(req.params.id));
 });
 
 

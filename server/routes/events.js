@@ -17,11 +17,14 @@ const checkevent = (b) => {
     return errors;
 };
 
+// one event by id, or undefined
+const getevent = async (id) => (await pool.query("SELECT * FROM events WHERE id = ?",[id]))[0][0];
+
 
 // events: all event packages (everyone)
 router.get("/",async (req,res) => {
-    const result = await pool.query("SELECT * FROM events ORDER BY id");
-    res.json(result.rows);
+    const [rows] = await pool.query("SELECT * FROM events ORDER BY id");
+    res.json(rows);
 });
 
 
@@ -30,12 +33,13 @@ router.post("/",needadmin,async (req,res) => {
     const b = req.body;
     if (sendproblems(res,checkevent(b))) return;
 
-    const result = await pool.query(
+    // menus is a JSON column, so the list is sent as JSON text
+    const [result] = await pool.query(
         `INSERT INTO events (name,description,price_per_person,min_guests,max_guests,menus)
-         VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
-        [b.name.trim(),b.description || "",b.price_per_person,b.min_guests,b.max_guests,b.menus]
+         VALUES (?,?,?,?,?,?)`,
+        [b.name.trim(),b.description || "",b.price_per_person,b.min_guests,b.max_guests,JSON.stringify(b.menus)]
     );
-    res.status(201).json(result.rows[0]);
+    res.status(201).json(await getevent(result.insertId));
 });
 
 
@@ -43,24 +47,24 @@ router.post("/",needadmin,async (req,res) => {
 router.put("/:id",needadmin,async (req,res) => {
     const b = req.body;
     if (sendproblems(res,checkevent(b))) return;
+    if (!await getevent(req.params.id)) return res.status(404).json({error: "Event not found."});
 
-    const result = await pool.query(
-        `UPDATE events SET name = $1,description = $2,price_per_person = $3,min_guests = $4,max_guests = $5,menus = $6
-         WHERE id = $7 RETURNING *`,
-        [b.name.trim(),b.description || "",b.price_per_person,b.min_guests,b.max_guests,b.menus,req.params.id]
+    await pool.query(
+        `UPDATE events SET name = ?,description = ?,price_per_person = ?,min_guests = ?,max_guests = ?,menus = ?
+         WHERE id = ?`,
+        [b.name.trim(),b.description || "",b.price_per_person,b.min_guests,b.max_guests,JSON.stringify(b.menus),req.params.id]
     );
-    if (!result.rows.length) return res.status(404).json({error: "Event not found."});
-    res.json(result.rows[0]);
+    res.json(await getevent(req.params.id));
 });
 
 
 // events: delete a package (admin). not allowed while people have booked it
 router.delete("/:id",needadmin,async (req,res) => {
-    const booked = await pool.query("SELECT 1 FROM reservations WHERE event_id = $1 LIMIT 1",[req.params.id]);
-    if (booked.rows.length) return res.status(409).json({error: "This event has bookings. Cancel them first."});
+    const [booked] = await pool.query("SELECT 1 FROM reservations WHERE event_id = ? LIMIT 1",[req.params.id]);
+    if (booked.length) return res.status(409).json({error: "This event has bookings. Cancel them first."});
 
-    const result = await pool.query("DELETE FROM events WHERE id = $1",[req.params.id]);
-    if (!result.rowCount) return res.status(404).json({error: "Event not found."});
+    const [result] = await pool.query("DELETE FROM events WHERE id = ?",[req.params.id]);
+    if (!result.affectedRows) return res.status(404).json({error: "Event not found."});
     res.json({ok: true});
 });
 

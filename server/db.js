@@ -1,20 +1,29 @@
-import pg from "pg";
+import mysql from "mysql2/promise";
 import "dotenv/config";
 
 
-// NUMERIC (prices, totals) come back as text, so turn them into numbers
-pg.types.setTypeParser(1700,parseFloat);
-
-// DATE comes back as a JS Date (which can shift a day), so keep it as "2026-11-24"
-pg.types.setTypeParser(1082,(value) => value);
-
-
-const pool = new pg.Pool({
-    user: process.env.DB_USER,
+// a pool keeps a few connections open and reuses them, so every request doesn't reconnect
+const pool = mysql.createPool({
     host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 3306,
+
+    // DECIMAL (prices, totals) come back as numbers instead of text
+    decimalNumbers: true,
+
+    // DATE comes back as "2026-11-24" instead of a JS Date (which can shift a day)
+    dateStrings: ["DATE"],
+
+    // MySQL has no real true/false: BOOLEAN is TINYINT(1), so turn 1/0 back into true/false
+    typeCast: (field,next) => {
+        if (field.type === "TINY" && field.length === 1) {
+            const value = field.string();
+            return value === null ? null : value === "1";
+        }
+        return next();
+    }
 });
 
 

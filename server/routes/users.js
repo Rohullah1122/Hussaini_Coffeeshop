@@ -12,26 +12,30 @@ const USERFIELDS = "id,full_name,email,phone,role,preferences,created_at";
 // customers can only touch their own account, admins can touch any
 const isselforadmin = (req) => req.user.role === "admin" || req.user.id === Number(req.params.id);
 
+// one user by id (without the password hash), or undefined
+const getuser = async (id) => (await pool.query(`SELECT ${USERFIELDS} FROM users WHERE id = ?`,[id]))[0][0];
+
 
 // users: list every account with how many orders and how much they spent (admin)
+// MySQL has no SUM(...) FILTER (WHERE ...), so CASE only adds the totals of orders that aren't cancelled
 router.get("/",needadmin,async (req,res) => {
-    const result = await pool.query(
+    const [rows] = await pool.query(
         `SELECT u.id,u.full_name,u.email,u.phone,u.role,u.preferences,u.created_at,
-                COUNT(o.id)::int AS order_count,
-                COALESCE(SUM(o.total) FILTER (WHERE o.status <> 'cancelled'),0) AS total_spent
+                COUNT(o.id) AS order_count,
+                COALESCE(SUM(CASE WHEN o.status <> 'cancelled' THEN o.total END),0) AS total_spent
          FROM users u LEFT JOIN orders o ON o.user_id = u.id
          GROUP BY u.id ORDER BY u.id`
     );
-    res.json(result.rows);
+    res.json(rows);
 });
 
 
 // users: one account (yourself, or admin)
 router.get("/:id",needlogin,async (req,res) => {
     if (!isselforadmin(req)) return res.status(403).json({error: "You can only see your own account."});
-    const result = await pool.query(`SELECT ${USERFIELDS} FROM users WHERE id = $1`,[req.params.id]);
-    if (!result.rows.length) return res.status(404).json({error: "User not found."});
-    res.json(result.rows[0]);
+    const user = await getuser(req.params.id);
+    if (!user) return res.status(404).json({error: "User not found."});
+    res.json(user);
 });
 
 
@@ -46,16 +50,18 @@ router.put("/:id",needlogin,async (req,res) => {
     if (password !== undefined && !filled(password,6)) errors.password = "The password needs at least 6 characters.";
     if (sendproblems(res,errors)) return;
 
-    // COALESCE keeps the old value when a field wasn't sent
-    const result = await pool.query(
-        `UPDATE users SET full_name = COALESCE($1,full_name),email = COALESCE($2,email),phone = COALESCE($3,phone),
-            preferences = COALESCE($4,preferences),password_hash = COALESCE($5,password_hash)
-         WHERE id = $6 RETURNING ${USERFIELDS}`,
+    if (!await getuser(req.params.id)) return res.status(404).json({error: "User not found."});
+
+    // COALESCE keeps the old value when a field wasn't sent (null).
+    // CAST(? AS JSON) turns the preferences text back into JSON for the JSON column
+    await pool.query(
+        `UPDATE users SET full_name = COALESCE(?,full_name),email = COALESCE(?,email),phone = COALESCE(?,phone),
+            preferences = COALESCE(CAST(? AS JSON),preferences),password_hash = COALESCE(?,password_hash)
+         WHERE id = ?`,
         [full_name ? full_name.trim() : null,email ? email.trim().toLowerCase() : null,phone ?? null,
-         preferences ?? null,password ? await bcrypt.hash(password,10) : null,req.params.id]
+         preferences ? JSON.stringify(preferences) : null,password ? await bcrypt.hash(password,10) : null,req.params.id]
     );
-    if (!result.rows.length) return res.status(404).json({error: "User not found."});
-    res.json(result.rows[0]);
+    res.json(await getuser(req.params.id));
 });
 
 
@@ -65,9 +71,9 @@ router.patch("/:id/role",needadmin,async (req,res) => {
     if (!["customer","admin"].includes(role)) return res.status(400).json({error: "Role must be customer or admin."});
     if (Number(req.params.id) === req.user.id) return res.status(400).json({error: "You can't change your own role."});
 
-    const result = await pool.query(`UPDATE users SET role = $1 WHERE id = $2 RETURNING ${USERFIELDS}`,[role,req.params.id]);
-    if (!result.rows.length) return res.status(404).json({error: "User not found."});
-    res.json(result.rows[0]);
+    if (!await getuser(req.params.id)) return res.status(404).json({error: "User not found."});
+    await pool.query("UPDATE users SET role = ? WHERE id = ?",[role,req.params.id]);
+    res.json(await getuser(req.params.id));
 });
 
 
@@ -76,8 +82,8 @@ router.delete("/:id",needlogin,async (req,res) => {
     if (!isselforadmin(req)) return res.status(403).json({error: "You can only delete your own account."});
     if (req.user.role === "admin" && Number(req.params.id) === req.user.id) return res.status(400).json({error: "Admins can't delete their own account here."});
 
-    const result = await pool.query("DELETE FROM users WHERE id = $1",[req.params.id]);
-    if (!result.rowCount) return res.status(404).json({error: "User not found."});
+    const [result] = await pool.query("DELETE FROM users WHERE id = ?",[req.params.id]);
+    if (!result.affectedRows) return res.status(404).json({error: "User not found."});
     res.json({ok: true});
 });
 
